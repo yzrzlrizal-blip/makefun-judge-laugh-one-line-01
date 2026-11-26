@@ -30,13 +30,22 @@ def check_line(text: str) -> None:
         raise ValueError("joke contains control characters")
 
 
+def write_entry(path: str, text: str) -> None:
+    """Write the line, then read it back and confirm it survived verbatim."""
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(text)
+    with open(path, encoding="utf-8") as handle:
+        written = handle.read()
+    if written != text:
+        raise ValueError(f"read-back mismatch in {path}: {written!r} != {text!r}")
+
+
 def main() -> int:
     check_line(JOKE)
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
-    with open(path, "w", encoding="utf-8", newline="") as handle:
-        handle.write(JOKE)
+    write_entry(path, JOKE)
     print(f"wrote {len(JOKE)} characters to {path}")
     print(JOKE)
     return 0
